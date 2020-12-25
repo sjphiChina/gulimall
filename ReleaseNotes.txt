@@ -1,5 +1,6 @@
 release/atguigu-0.0.2.1:
-此版本基于release/atguigu-0.0.2创建，并对应谷粒商城视频教程至153，预计会包括至172。
+此版本基于release/atguigu-0.0.2创建，并对应谷粒商城视频教程至153至172。
+主要在0.0.2基础上加入了Redisson和SpringCache的实现，目前tps大约在170-200/s。
 
 release/atguigu-0.0.2:
 此版本的cache使用有误，参见bug1&2。为追赶学习进度，决定创建0.0.2.1版本，将atguigu-0.0.2留下，便于之后单独分析调试。
