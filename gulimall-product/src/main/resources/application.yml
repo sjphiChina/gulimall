@@ -27,8 +27,10 @@ mybatis-plus:
       logic-not-delete-value: 0
 server:
   port: 14000
-logging:
-  level:
-    com.atguigu.gulimall: debug
+#logging:
+#  level:
+#    com.atguigu.gulimall: debug
+#  pattern:
+#    console: %d{yyyy-MM-dd HH:mm:ss} - %logger{100} - %msg%n
 
 
