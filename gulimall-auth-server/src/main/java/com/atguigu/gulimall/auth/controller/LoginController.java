@@ -1,7 +1,11 @@
 package com.atguigu.gulimall.auth.controller;
 
+import com.alibaba.fastjson.TypeReference;
+import com.atguigu.common.utils.R;
+import com.atguigu.gulimall.auth.feign.MemberFeignService;
 import com.atguigu.gulimall.auth.vo.UserRegisterVo;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -9,12 +13,17 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
+import java.lang.reflect.Member;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Controller
 public class LoginController {
+
+    @Autowired
+    MemberFeignService memberFeignService;
 
       // GulimallWebConfig 中配置了addViewControllers，一下两个简单方法可以省略
 //    @GetMapping("/login.html")
@@ -30,7 +39,7 @@ public class LoginController {
     // RedirectAttributes redirectAttributes 模拟重定向携带数据
     @PostMapping("/register")
     public String register(@Valid UserRegisterVo vo, BindingResult result, RedirectAttributes redirectAttributes) {
-        log.debug("Received reqeust: {}", vo.toString());
+        log.debug("Received requst: {}", vo.toString());
         if (result.hasErrors()) {
 //            result.getFieldErrors().stream().map(fieldError -> {
 //                String field = fieldError.getField();
@@ -49,6 +58,7 @@ public class LoginController {
                     .collect(Collectors.toMap(FieldError::getField, FieldError::getDefaultMessage));
             //model.addAttribute("errors", errors);
             //addFlashAttribute()  数据只能被保存访问一次
+            log.error("error: {}", errors.values().toString());
             redirectAttributes.addFlashAttribute("errors", errors);
             //校验出错，退回
             // Request method POST not supported
@@ -59,8 +69,19 @@ public class LoginController {
         }
         //注册成功回到首页，回到登录页
 
+        R r = memberFeignService.register(vo);
+        if (r.getCode() == 0) {
+            //成功
+            return "redirect:http://auth.gulimall.com/login.html";
+        } else {
+            Map<String, String> errors = new HashMap<>();
+            errors.put("msg",r.getMsg());
+            redirectAttributes.addFlashAttribute("errors", errors);
+            log.error("error: {}", r.getData(new TypeReference<String>(){}));
+            return "redirect:http://auth.gulimall.com/reg.html";
+        }
 
         // login.html 前面的 / 代表直接回到本域名的资源
-        return "redirect:/login.html";
+        //return "redirect:/login.html";
     }
 }
