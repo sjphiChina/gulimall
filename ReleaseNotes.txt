@@ -1,3 +1,6 @@
+release/atguigu-0.0.2.4:
+预计对应video211-235
+
 release/atguigu-0.0.2.3:
 显示商品详情页，实际对应video203-207，210。
 
