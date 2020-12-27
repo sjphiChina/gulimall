@@ -3,10 +3,12 @@ package com.atguigu.gulimall.member.controller;
 import java.util.Arrays;
 import java.util.Map;
 
+import com.alibaba.fastjson.TypeReference;
 import com.atguigu.common.exception.BizCodeEnume;
 import com.atguigu.gulimall.member.exception.PhoneExistException;
 import com.atguigu.gulimall.member.exception.UsernameExistException;
 import com.atguigu.gulimall.member.feign.CouponFeignService;
+import com.atguigu.gulimall.member.vo.MemberEntityToVo;
 import com.atguigu.gulimall.member.vo.MemberLoginVo;
 import com.atguigu.gulimall.member.vo.MemberRegisterVo;
 import lombok.extern.slf4j.Slf4j;
@@ -53,8 +55,10 @@ public class MemberController {
     @RequestMapping("/login")
     public R login(@RequestBody MemberLoginVo vo) {
         MemberEntity entity = memberService.login(vo);
-        if (entity != null)
-            return R.ok();
+        if (entity != null) {
+            log.info("Login success: {}", entity.toString());
+            return R.ok().setData(MemberEntityToVo.converToVo(entity));
+        }
         else
             return R.error(BizCodeEnume.LOGIN_ERROR_EXCEPTION.getCode(), BizCodeEnume.LOGIN_ERROR_EXCEPTION.getMsg());
     }

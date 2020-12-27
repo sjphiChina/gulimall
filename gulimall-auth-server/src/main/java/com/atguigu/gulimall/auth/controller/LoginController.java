@@ -3,6 +3,7 @@ package com.atguigu.gulimall.auth.controller;
 import com.alibaba.fastjson.TypeReference;
 import com.atguigu.common.utils.R;
 import com.atguigu.gulimall.auth.feign.MemberFeignService;
+import com.atguigu.common.vo.MemberVo;
 import com.atguigu.gulimall.auth.vo.UserLoginVo;
 import com.atguigu.gulimall.auth.vo.UserRegisterVo;
 import lombok.extern.slf4j.Slf4j;
@@ -13,8 +14,8 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
-import java.lang.reflect.Member;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -87,11 +88,14 @@ public class LoginController {
     }
 
     @PostMapping("/login")
-    public String register(UserLoginVo vo, RedirectAttributes redirectAttributes) {
+    public String login(UserLoginVo vo, RedirectAttributes redirectAttributes, HttpSession session) {
 
         log.debug("Received login request: {}", vo.toString());
         R login = memberFeignService.login(vo);
         if (login.getCode() == 0) {
+            MemberVo memberVo = login.getData(new TypeReference<MemberVo>(){});
+            log.info("Login success: {}", memberVo.toString());
+            session.setAttribute("loginUser", memberVo);
             return "redirect:http://gulimall.com";
         }
         Map<String, String> errors = new HashMap<>();
