@@ -1,5 +1,5 @@
 release/atguigu-0.0.2.4:
-预计对应video211-235
+对应video211-230，实现基于spring redis session的注册登录功能，由于测试环境限制不包含社交登录，231-235的单点登录留以后实现
 
 release/atguigu-0.0.2.3:
 显示商品详情页，实际对应video203-207，210。
