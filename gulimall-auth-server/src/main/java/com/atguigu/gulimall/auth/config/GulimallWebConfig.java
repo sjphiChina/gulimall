@@ -10,7 +10,7 @@ public class GulimallWebConfig  implements WebMvcConfigurer {
     //spring mvc 的视图映射
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
-        registry.addViewController("/login.html").setViewName("login");
+        //registry.addViewController("/login.html").setViewName("login");
         registry.addViewController("/reg.html").setViewName("reg");
     }
 

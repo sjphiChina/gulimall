@@ -1,16 +1,19 @@
 package com.atguigu.gulimall.auth.controller;
 
 import com.alibaba.fastjson.TypeReference;
+import com.atguigu.common.constant.AuthServerConstant;
 import com.atguigu.common.utils.R;
 import com.atguigu.gulimall.auth.feign.MemberFeignService;
 import com.atguigu.common.vo.MemberVo;
 import com.atguigu.gulimall.auth.vo.UserLoginVo;
 import com.atguigu.gulimall.auth.vo.UserRegisterVo;
+import javafx.beans.property.adapter.ReadOnlyJavaBeanBooleanProperty;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -28,10 +31,14 @@ public class LoginController {
     MemberFeignService memberFeignService;
 
       // GulimallWebConfig 中配置了addViewControllers，一下两个简单方法可以省略
-//    @GetMapping("/login.html")
-//    public String loginPage() {
-//        return "login";
-//    }
+    @GetMapping("/login.html")
+    public String loginPage(HttpSession session) {
+        Object attribute = session.getAttribute(AuthServerConstant.LOGIN_USER);
+        if (attribute == null) {
+            return "login";
+        }
+        return "redirect:http://gulimall.com";
+    }
 //
 //    @GetMapping("/reg.html")
 //    public String regPage() {
@@ -95,7 +102,7 @@ public class LoginController {
         if (login.getCode() == 0) {
             MemberVo memberVo = login.getData(new TypeReference<MemberVo>(){});
             log.info("Login success: {}", memberVo.toString());
-            session.setAttribute("loginUser", memberVo);
+            session.setAttribute(AuthServerConstant.LOGIN_USER, memberVo);
             return "redirect:http://gulimall.com";
         }
         Map<String, String> errors = new HashMap<>();
