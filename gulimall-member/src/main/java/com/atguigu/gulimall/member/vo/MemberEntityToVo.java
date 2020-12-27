@@ -6,6 +6,7 @@ import com.atguigu.gulimall.member.entity.MemberEntity;
 public class MemberEntityToVo {
     public static MemberVo converToVo(MemberEntity entity) {
         MemberVo vo = new MemberVo();
+        vo.setId(entity.getId());
         vo.setUsername(entity.getUsername());
         vo.setEmail(entity.getEmail());
         vo.setNickname(entity.getNickname());
