@@ -7,6 +7,7 @@ import com.atguigu.common.exception.BizCodeEnume;
 import com.atguigu.gulimall.member.exception.PhoneExistException;
 import com.atguigu.gulimall.member.exception.UsernameExistException;
 import com.atguigu.gulimall.member.feign.CouponFeignService;
+import com.atguigu.gulimall.member.vo.MemberLoginVo;
 import com.atguigu.gulimall.member.vo.MemberRegisterVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +48,15 @@ public class MemberController {
 
         R membercoupons = couponFeignService.membercoupons();
         return R.ok().put("member",memberEntity).put("coupons",membercoupons.get("coupons"));
+    }
+
+    @RequestMapping("/login")
+    public R login(@RequestBody MemberLoginVo vo) {
+        MemberEntity entity = memberService.login(vo);
+        if (entity != null)
+            return R.ok();
+        else
+            return R.error(BizCodeEnume.LOGIN_ERROR_EXCEPTION.getCode(), BizCodeEnume.LOGIN_ERROR_EXCEPTION.getMsg());
     }
 
     @RequestMapping("/register")

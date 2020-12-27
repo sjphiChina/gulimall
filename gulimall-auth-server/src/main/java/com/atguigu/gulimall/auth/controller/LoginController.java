@@ -3,6 +3,7 @@ package com.atguigu.gulimall.auth.controller;
 import com.alibaba.fastjson.TypeReference;
 import com.atguigu.common.utils.R;
 import com.atguigu.gulimall.auth.feign.MemberFeignService;
+import com.atguigu.gulimall.auth.vo.UserLoginVo;
 import com.atguigu.gulimall.auth.vo.UserRegisterVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +40,7 @@ public class LoginController {
     // RedirectAttributes redirectAttributes 模拟重定向携带数据
     @PostMapping("/register")
     public String register(@Valid UserRegisterVo vo, BindingResult result, RedirectAttributes redirectAttributes) {
-        log.debug("Received requst: {}", vo.toString());
+        log.debug("Received register request: {}", vo.toString());
         if (result.hasErrors()) {
 //            result.getFieldErrors().stream().map(fieldError -> {
 //                String field = fieldError.getField();
@@ -83,5 +84,20 @@ public class LoginController {
 
         // login.html 前面的 / 代表直接回到本域名的资源
         //return "redirect:/login.html";
+    }
+
+    @PostMapping("/login")
+    public String register(UserLoginVo vo, RedirectAttributes redirectAttributes) {
+
+        log.debug("Received login request: {}", vo.toString());
+        R login = memberFeignService.login(vo);
+        if (login.getCode() == 0) {
+            return "redirect:http://gulimall.com";
+        }
+        Map<String, String> errors = new HashMap<>();
+        //errors.put("msg",login.getData("msg", new TypeReference<String>(){}));
+        errors.put("msg",login.getMsg());
+        redirectAttributes.addFlashAttribute("errors", errors);
+        return "redirect:http://auth.gulimall.com/login.html";
     }
 }
