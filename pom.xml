@@ -11,6 +11,7 @@
 
     <modules>
         <module>gulimall-common</module>
+        <module>gulimall-cart</module>
         <module>gulimall-auth-server</module>
         <module>gulimall-product</module>
         <module>gulimall-member</module>
