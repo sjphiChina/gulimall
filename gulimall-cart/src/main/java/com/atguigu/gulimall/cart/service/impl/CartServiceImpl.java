@@ -71,6 +71,14 @@ public class CartServiceImpl implements CartService {
         return cartItemVo;
     }
 
+    @Override
+    public CartItemVo getCartItemVo(Long skuId) {
+        BoundHashOperations<String, Object, Object> ops = getCartOps();
+        String str = (String) ops.get(skuId.toString());
+        CartItemVo itemVo = JSON.parseObject(str, CartItemVo.class);
+        return itemVo;
+    }
+
     //获取要操作的购物车
     private BoundHashOperations<String, Object, Object> getCartOps() {
         UserInfoTo userInfoTo = CartInterceptor.threadLocal.get();

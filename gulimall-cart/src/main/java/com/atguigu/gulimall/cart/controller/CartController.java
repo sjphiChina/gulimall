@@ -10,6 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.concurrent.ExecutionException;
 
@@ -29,14 +30,20 @@ public class CartController {
     }
 
     @GetMapping("/addToCart")
-    public String addToCart(@RequestParam("skuId") Long skuId, @RequestParam("num") Integer num, Model model)
+    public String addToCart(@RequestParam("skuId") Long skuId, @RequestParam("num") Integer num, RedirectAttributes ra)
             throws ExecutionException, InterruptedException {
-        UserInfoTo userInfoTo = CartInterceptor.threadLocal.get();
 
-        CartItemVo itemVo = cartService.addToCart(skuId, num);
+        cartService.addToCart(skuId, num);
+        ra.addAttribute("skuId", skuId);
+        return "redirect:http://cart.gulimall.com/addToCartSuccess.html";
+    }
 
+    //通过重定向，每次刷新success页面，不用担心重复添加
+    @GetMapping("/addToCartSuccess.html")
+    public String addToCartSuccessPage(@RequestParam("skuId") Long skuId, Model model){
+        //重定向到成功页面，再次查询购物车数据即可
+        CartItemVo itemVo = cartService.getCartItemVo(skuId);
         model.addAttribute("item", itemVo);
-        log.info("Current Thread userinfo: {}", userInfoTo.toString());
         return "success";
     }
 }

@@ -6,4 +6,6 @@ import java.util.concurrent.ExecutionException;
 
 public interface CartService {
     CartItemVo addToCart(Long skuId, Integer num) throws ExecutionException, InterruptedException;
+
+    CartItemVo getCartItemVo(Long skuId);
 }
