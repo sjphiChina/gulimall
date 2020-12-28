@@ -53,7 +53,7 @@
 						<input type="button" value="搜索" class="one_right_btn">
 					</div>
 				</div>
-				<div class="one_search_load" th:if="${userId}==null">
+				<div class="one_search_load" th:if="${session.loginUser}==null">
 					<img src="/static/cart/img/shop_07.jpg" class="one_load_wraing">
 					<span>您还没有登录！登录后购物车的商品将保存到您账号中</span>
 					<a href="#"><input type="button" onclick="login()" value="立即登录" class="one_load_btn"></a>
@@ -81,28 +81,33 @@
 				</div>
 
 				<div class="One_ShopCon">
-					<ul>
-						<li th:each="cartInfo:${cartList}">
+					<h1 th:if="${cart.items == null}">
+						购物车还没有商品,<a href="http://gulimall.com">去购物</a>
+					</h1>
+					<ul th:if="${cart.items != null}">
+						<li th:each="cartInfo:${cart.items}">
 							<div> </div>
 
 							<div>
 								<ol>
-									<li><input type="checkbox" class="check" th:value="${cartInfo.skuId}" onchange="checkSku(this)" th:checked="(${cartInfo.isChecked}==1)?'true':'false'" /></li>
+									<li><input type="checkbox" class="check" th:value="${cartInfo.skuId}" onchange="checkSku(this)" th:checked="(${cartInfo.check}==1)?'true':'false'" /></li>
 									<li>
-										<dt><img th:src="${cartInfo.imgUrl}" src="/static/cart/img/shop1.jpg" alt=""></dt>
+										<dt><img th:src="${cartInfo.image}" alt=""></dt>
 										<dd th:onclick="'toItem('+${cartInfo.skuId}+')'">
 											<p>
-												<span th:text="${cartInfo.skuName}">TCL 55A950C 55英寸32核</span>
+												<span th:text="${cartInfo.title}">TCL 55A950C 55英寸32核</span>
+												<br/>
+												<span th:each="attr:${cartInfo.skuAttr}" th:text="${attr}">属性</span>
 											</p>
 										</dd>
 									</li>
 									<li>
-										<p class="dj" th:text="'￥'+${cartInfo.skuPrice}">4599.00</p>
+										<p class="dj" th:text="'￥'+${cartInfo.price}">4599.00</p>
 									</li>
 									<li>
 										<p>
 											<span>-</span>
-											<span th:text="${cartInfo.skuNum}">5</span>
+											<span th:text="${cartInfo.count}">5</span>
 											<span>+</span>
 										</p>
 									</li>
@@ -115,45 +120,6 @@
 								</ol>
 							</div>
 						</li>
-						<!--<li>
-                    <div>
-                    </div>
-                    <div>
-                        <ol>
-                            <li><input type="checkbox"  class="check"></li>
-                            <li>
-                                <dt><img src="img\shop1.jpg" alt=""></dt>
-                                <dd>
-                                    <p>
-
-                                        <span>TCL 55A950C 55英寸32核</span>
-                                        <span>尺码: 55时 超薄曲面 人工智能</span>
-                                    </p>
-                                    <p>人工智能 HDR曲面超薄4K电视金属机</p>
-
-                                </dd>
-                            </li>
-                            <li>
-                                <p class="dj">￥4599.00</p>
-
-                            </li>
-                            <li>
-                                <p>
-                                    <span>-</span>
-                                    <span>5</span>
-                                    <span>+</span>
-                                </p>
-
-                            </li>
-                            <li style="font-weight:bold"><p class="zj">￥22995.00</p></li>
-                            <li>
-                                <p>删除</p>
-
-                            </li>
-                        </ol>
-                    </div>
-                </li>-->
-
 					</ul>
 				</div>
 				<div class="One_ShopFootBuy fix1">
@@ -175,7 +141,10 @@
 					</div>
 					<div>
 						<ol>
-							<li>总价:<span style="color:#e64346;font-weight:bold;font-size:16px;" class="fnt">￥0.00</span> </li>
+							<li>总价: ￥<span style="color:#e64346;font-weight:bold;font-size:16px;"
+										 class="fnt" th:text="${cart.getTotalAmount()}"></span>
+							</li>
+							<li>优惠: [[${#numbers.formatDecimal(cart.reduce,1,2)}]]</li>
 
 						</ol>
 					</div>
@@ -251,12 +220,12 @@
 		}
 
 		function toItem(skuId) {
-			window.location.href = "http://item.gmall.com:8084/" + skuId + ".html";
+			window.location.href = "http://item.gulimall.com/" + skuId + ".html";
 		}
 
 		function login() {
-			var s = encodeURIComponent("http://cart.gmall.com:8087/cartList");
-			window.location.href = "http://passport.atguigu.com/index?originUrl=" + s;
+			var s = encodeURIComponent("http://cart.gmuliall.com/cartList");
+			window.location.href = "http://auth.gulimall.com/login.html";
 		}
 
 		function checkSku(chkbox) {
@@ -267,11 +236,13 @@
 				isCheckedFlag = "1";
 			}
 			var param = "isChecked=" + isCheckedFlag + "&" + "skuId=" + skuId;
-			$.post("checkCart", param, function(data) {
-				sumSumPrice();
-			});
+			location.href = "http://cart.gulimall.com/checkItem?skuId="+skuId+"&check="+isCheckedFlag;
+			// $.post("checkCart", param, function(data) {
+			// 	sumSumPrice();
+			// });
 
 		}
+
 
 		//封装总价钱函数
 		function sumSumPrice() {

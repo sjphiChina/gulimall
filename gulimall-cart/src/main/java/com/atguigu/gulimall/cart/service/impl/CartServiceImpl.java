@@ -7,6 +7,7 @@ import com.atguigu.gulimall.cart.feign.ProductFeignService;
 import com.atguigu.gulimall.cart.interceptor.CartInterceptor;
 import com.atguigu.gulimall.cart.service.CartService;
 import com.atguigu.gulimall.cart.vo.CartItemVo;
+import com.atguigu.gulimall.cart.vo.CartVo;
 import com.atguigu.gulimall.cart.vo.SkuInfoVo;
 import com.atguigu.gulimall.cart.vo.UserInfoTo;
 import org.apache.commons.lang.StringUtils;
@@ -19,6 +20,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.stream.Collectors;
 
 @Service
 public class CartServiceImpl implements CartService {
@@ -75,20 +77,74 @@ public class CartServiceImpl implements CartService {
     public CartItemVo getCartItemVo(Long skuId) {
         BoundHashOperations<String, Object, Object> ops = getCartOps();
         String str = (String) ops.get(skuId.toString());
-        CartItemVo itemVo = JSON.parseObject(str, CartItemVo.class);
-        return itemVo;
+        return JSON.parseObject(str, CartItemVo.class);
+    }
+
+    @Override
+    public CartVo getCart() throws ExecutionException, InterruptedException {
+        CartVo cartVo = new CartVo();
+        UserInfoTo userInfoTo = CartInterceptor.threadLocal.get();
+        if (userInfoTo.getUserId() != null) {
+            String cartKey = CART_PREFIX + userInfoTo.getUserId();
+            //如果临时购物车的数据还没有合并，那就合并
+            String tempCartKey = CART_PREFIX+userInfoTo.getUserKey();
+            List<CartItemVo> list = getCartItems(tempCartKey);
+            if (list!= null) {
+                for (CartItemVo itemVo : list) {
+                    addToCart(itemVo.getSkuId(), itemVo.getCount());
+                }
+                //情况临时购物车
+                clearCart(tempCartKey);
+            }
+            //获取登录后的购物车数据（包含临时购物车的数据）
+            List<CartItemVo> cartItemVos = getCartItems(cartKey);
+            cartVo.setItems(cartItemVos);
+        } else {
+            // 没登录，则获取临时购物车的所有购物享
+            String cartKey = CART_PREFIX + userInfoTo.getUserKey();
+            List<CartItemVo> list = getCartItems(cartKey);
+            cartVo.setItems(list);
+        }
+        return cartVo;
     }
 
     //获取要操作的购物车
     private BoundHashOperations<String, Object, Object> getCartOps() {
         UserInfoTo userInfoTo = CartInterceptor.threadLocal.get();
-        String carKey = "";
+        String carKey;
         if (userInfoTo.getUserId() != null) {
             carKey = CART_PREFIX + userInfoTo.getUserId();
         } else {
             carKey = CART_PREFIX + userInfoTo.getUserKey();
         }
-        BoundHashOperations<String, Object, Object> operations = redisTemplate.boundHashOps(carKey);
-        return operations;
+        return redisTemplate.boundHashOps(carKey);
+    }
+
+    private List<CartItemVo> getCartItems(String cartKey) {
+        BoundHashOperations<String, Object, Object> operations = redisTemplate.boundHashOps(cartKey);
+        List<Object> values = operations.values();
+        if (values != null && values.size() > 0) {
+            List<CartItemVo> collect = values.stream().map((obj) -> {
+                String str = (String) obj;
+                CartItemVo cartItemVo = JSON.parseObject(str, CartItemVo.class);
+                return cartItemVo;
+            }).collect(Collectors.toList());
+            return collect;
+        }
+        return null;
+    }
+
+    @Override
+    public void clearCart(String cartKey) {
+        redisTemplate.delete(cartKey);
+    }
+
+    @Override
+    public void checkItem(Long skuId, Integer check) {
+        BoundHashOperations<String, Object, Object> cartOps = getCartOps();
+        CartItemVo cartItemVo = getCartItemVo(skuId);
+        cartItemVo.setCheck(check == 1);
+        String s = JSON.toJSONString(cartItemVo);
+        cartOps.put(skuId.toString(), s);
     }
 }
