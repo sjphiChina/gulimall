@@ -1,3 +1,6 @@
+release/atguigu-0.0.2.6:
+对应video247-282
+
 release/atguigu-0.0.2.5:
 对应video236-245，实现购物车的添加和显示，鉴于时间和对ui开发的掌握，246没有实现，目前存在bug#3,#4
 
