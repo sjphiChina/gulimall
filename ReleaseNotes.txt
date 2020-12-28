@@ -1,5 +1,5 @@
 release/atguigu-0.0.2.5:
-预计对应video236-246
+对应video236-245，实现购物车的添加和显示，鉴于时间和对ui开发的掌握，246没有实现，目前存在bug#3,#4
 
 release/atguigu-0.0.2.4:
 对应video211-230，实现基于spring redis session的注册登录功能，由于测试环境限制不包含社交登录，231-235的单点登录留以后实现
