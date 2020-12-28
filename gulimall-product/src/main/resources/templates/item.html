@@ -617,7 +617,7 @@
 
 						<div class="box-btns clear">
 							<div class="box-btns-one">
-								<input type="text" name="" id="" value="1" />
+								<input type="text" name="" id="numInput" value="1" />
 								<div class="box-btns-one1">
 
 									<div>
@@ -633,8 +633,8 @@
 
 								</div>
 							</div>
-							<div class="box-btns-two">
-								<a href="http://cart.gulimall.com/addToCart">
+							<div class="box-btns-two" >
+								<a href="#" th:href="${'javascript:addToCartB('+item.skuInfoEntity.skuId+')'}">
 									加入购物车
 								</a>
 							</div>
@@ -1274,6 +1274,9 @@
 	<script dtv="/static/item/js/jquery1.9.js" type="text/javascript" charset="utf-8"></script>
 	<script dtv="/static/item/js/js.js" type="text/javascript" charset="utf-8"></script>
 	<script type="text/javascript">
+		function addToCartB(productId) {
+			location.href = "http://cart.gulimall.com/addToCart?skuId="+productId+"&num=1";
+		}
 	</script>
 
 </html>
