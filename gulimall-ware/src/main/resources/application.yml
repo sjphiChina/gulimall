@@ -7,7 +7,6 @@ spring:
     password: root
     url: jdbc:mysql://192.168.99.10:3306/gulimall_wms
     driver-class-name: com.mysql.jdbc.Driver
-
   cloud:
     nacos:
       discovery:

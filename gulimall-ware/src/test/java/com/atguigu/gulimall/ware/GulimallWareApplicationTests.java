@@ -1,6 +1,6 @@
 package com.atguigu.gulimall.ware;
 
-import com.atguigu.gulimall.ware.service.WareSkuService;
+import com.atguigu.gulimall.ware.dao.WareSkuDao;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,11 +11,13 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SpringBootTest
 public class GulimallWareApplicationTests {
 
-
+    @Autowired
+    WareSkuDao dao;
 
     @Test
     public void contextLoads() {
-
+        long res = dao.lockSkuStock(3l, 1l, 1);
+        System.out.println("=========test:" + res);
     }
 
 }
