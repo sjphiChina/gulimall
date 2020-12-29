@@ -3,6 +3,7 @@ package com.atguigu.gulimall.order.service.impl;
 import com.alibaba.fastjson.TypeReference;
 import com.atguigu.common.utils.R;
 import com.atguigu.common.vo.MemberVo;
+import com.atguigu.gulimall.order.constant.OrderConstant;
 import com.atguigu.gulimall.order.feign.CartFeignService;
 import com.atguigu.gulimall.order.feign.MemberFeignService;
 import com.atguigu.gulimall.order.feign.WareFeignService;
@@ -12,15 +13,18 @@ import com.atguigu.gulimall.order.vo.OrderConfirmVo;
 import com.atguigu.gulimall.order.vo.OrderItemVo;
 import com.atguigu.gulimall.order.vo.SkuStockVo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Member;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -51,6 +55,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
 
     @Autowired
     WareFeignService wareFeignService;
+
+    @Autowired
+    StringRedisTemplate redisTemplate;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -112,14 +119,20 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         }, threadPoolExecutor);
 
 
-        //查询用户几分
+        //查询用户积分
         Integer integration = memberVo.getIntegration();
         confirmVo.setIntegration(integration);
+
+        // KNOW 防重复令牌 基于token机制，token存于redis和前端页面
+        String token = UUID.randomUUID().toString().replace("-", "");
+        redisTemplate.opsForValue()
+                .set(OrderConstant.USER_ORDER_TOKEN_PREFIX + memberVo.getId(), token, 30, TimeUnit.MINUTES);
+        confirmVo.setOrderToken(token);
 
         CompletableFuture.allOf(getAddressFuture,cartFuture).get();
 
 
-        //防重复令牌
+
         return confirmVo;
     }
 
