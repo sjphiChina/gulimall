@@ -1,15 +1,31 @@
 package com.atguigu.gulimall.order.web;
 
+import com.atguigu.common.vo.MemberVo;
+import com.atguigu.gulimall.order.feign.MemberFeignService;
+import com.atguigu.gulimall.order.interceptor.LoginUserInterceptor;
+import com.atguigu.gulimall.order.service.OrderService;
+import com.atguigu.gulimall.order.vo.OrderConfirmVo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+
+import java.util.concurrent.ExecutionException;
 
 @Controller
 public class OrderWebController {
 
-    @GetMapping("/toTrade")
-    public String toTrade() {
+    @Autowired
+    OrderService orderService;
 
+    @GetMapping("/toTrade")
+    public String toTrade(Model model) throws ExecutionException, InterruptedException {
+        MemberVo memberVo = LoginUserInterceptor.loginUser.get();
+        //得到所有收货地址
+        OrderConfirmVo confirmVo = orderService.confirmOrder();
+        model.addAttribute("orderConfirmData", confirmVo);
+        //得到当前所有购物项
         return "confirm";
     }
 }

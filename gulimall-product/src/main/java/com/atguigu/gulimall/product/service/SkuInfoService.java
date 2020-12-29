@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.atguigu.common.utils.PageUtils;
 import com.atguigu.gulimall.product.entity.SkuInfoEntity;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;

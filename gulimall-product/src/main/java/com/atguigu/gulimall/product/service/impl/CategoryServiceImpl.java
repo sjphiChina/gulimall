@@ -123,6 +123,8 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         categoryBrandRelationService.updateCategory(category.getCatId(),category.getName());
     }
 
+    // KNOW 3种cache的用法
+
     //每一个需要缓存的数据我们都要来指定要放入哪个名字的缓存，缓存的分区（可按照业务类型分类）
     //@Cacheable(value = {"category"}, key = "'level1Category'") //代表当前方法的需要缓存，如果缓存中有，方法不用调用，如果缓存中没有，会调用方法，最后将数据写入缓存
     @Cacheable(value = {"category"}, key = "#root.method.name")//用当前方法名作为key

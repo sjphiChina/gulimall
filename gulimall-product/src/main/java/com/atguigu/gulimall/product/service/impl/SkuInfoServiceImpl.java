@@ -130,9 +130,7 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
     @Override
     public SkuItemVo item(Long skuId) throws ExecutionException, InterruptedException {
         SkuItemVo skuItemVo = new SkuItemVo();
-
-
-
+        // KNOW Java 的异步编排
 //        //1 sku基本信息获取
 //        SkuInfoEntity info = getById(skuId);
 //        skuItemVo.setSkuInfoEntity(info);

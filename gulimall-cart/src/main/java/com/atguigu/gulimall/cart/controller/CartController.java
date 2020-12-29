@@ -11,8 +11,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 @Slf4j
@@ -21,6 +23,12 @@ public class CartController {
 
     @Autowired
     CartService cartService;
+
+    @GetMapping("/currentUserCartItems")
+    @ResponseBody// TIP 因为返回一个json数据，所以用ResponseBody
+    public List<CartItemVo> getCurrentUserCartItems() {
+        return cartService.getUserCartItems();
+    }
 
     @GetMapping("/cart.html")
     public String carListPage(Model model) throws ExecutionException, InterruptedException {

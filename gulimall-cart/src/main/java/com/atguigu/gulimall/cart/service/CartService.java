@@ -3,6 +3,7 @@ package com.atguigu.gulimall.cart.service;
 import com.atguigu.gulimall.cart.vo.CartItemVo;
 import com.atguigu.gulimall.cart.vo.CartVo;
 
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public interface CartService {
@@ -16,4 +17,6 @@ public interface CartService {
 
     //勾选购物项
     void checkItem(Long skuId, Integer check);
+
+    List<CartItemVo> getUserCartItems();
 }

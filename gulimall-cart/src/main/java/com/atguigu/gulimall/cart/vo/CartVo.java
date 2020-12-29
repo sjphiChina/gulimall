@@ -44,8 +44,10 @@ public class CartVo {
         // 1. 计算购物享总价
         if (items != null && items.size() > 0) {
             for (CartItemVo itemVo: items) {
-                BigDecimal totalPrice = itemVo.getTotalPrice();
-                amount = amount.add(totalPrice);
+                if (itemVo.getCheck()) {
+                    BigDecimal totalPrice = itemVo.getTotalPrice();
+                    amount = amount.add(totalPrice);
+                }
             }
         }
         // 2. 减去优惠总价
