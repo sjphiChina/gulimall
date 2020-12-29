@@ -11,13 +11,17 @@ import com.atguigu.gulimall.order.interceptor.LoginUserInterceptor;
 import com.atguigu.gulimall.order.vo.MemberAddressVo;
 import com.atguigu.gulimall.order.vo.OrderConfirmVo;
 import com.atguigu.gulimall.order.vo.OrderItemVo;
+import com.atguigu.gulimall.order.vo.OrderSubmitVo;
 import com.atguigu.gulimall.order.vo.SkuStockVo;
+import com.atguigu.gulimall.order.vo.SubmitOrderResponseVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Member;
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -134,6 +138,37 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
 
 
         return confirmVo;
+    }
+
+    @Override
+    public SubmitOrderResponseVo submitOrder(OrderSubmitVo vo) {
+        SubmitOrderResponseVo responseVo = new SubmitOrderResponseVo();
+
+        //创建订单
+
+        MemberVo memberVo = LoginUserInterceptor.loginUser.get();
+
+        //1 KNOW 验证令牌 [令牌的对比和删除必须保证原子性]
+        //  String voToken = vo.getOrderToken();
+        //  String redisToken = redisTemplate.opsForValue().get(OrderConstant.USER_ORDER_TOKEN_PREFIX + memberVo.getId());
+        //  if (voToken != null && !voToken.equals(redisToken))
+        //     return null;
+
+        // 这里使用redis的lua脚本，如果key不存在，返回0；如果key存在，对比成功返回1，失败返回0
+        String luaScript = "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end";
+        String voToken = vo.getOrderToken();
+        //原子验证和删除令牌
+        Long result = redisTemplate.execute(new DefaultRedisScript<Long>(luaScript, Long.class),
+                Arrays.asList(OrderConstant.USER_ORDER_TOKEN_PREFIX + memberVo.getId()), voToken);
+        if (result == 0l)
+            return responseVo;
+
+
+
+        //锁库存
+
+
+        return null;
     }
 
 }
