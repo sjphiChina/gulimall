@@ -56,6 +56,8 @@ import com.atguigu.common.utils.Query;
 import com.atguigu.gulimall.order.dao.OrderDao;
 import com.atguigu.gulimall.order.entity.OrderEntity;
 import com.atguigu.gulimall.order.service.OrderService;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestAttributes;
@@ -179,7 +181,12 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         return confirmVo;
     }
 
-    @Transactional
+    // KNOW DB事务的4种隔离级别
+    //@Transactional(isolation = Isolation.READ_COMMITTED)
+    // KNOW DB事务的传播行为
+//    @Transactional(propagation = Propagation.REQUIRED)
+//    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    Transactional
     @Override
     public SubmitOrderResponseVo submitOrder(OrderSubmitVo vo) {
         // TIP 用threadlocal将OrderSubmitVo共享
