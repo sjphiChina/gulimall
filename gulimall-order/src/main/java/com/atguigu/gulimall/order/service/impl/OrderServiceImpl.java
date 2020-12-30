@@ -226,6 +226,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
             saveOrder(orderCreateTo);
             // 4 远程锁定库存,只要有异常就回滚
             // 订单号，所有订单项信息（skuid，skuname，num)
+//             KNOW 为了保证高并发，视频不建议使用seata，而是提到了两种解决方法，最终一致性
+//                     1 可以发消息给ware服务，让ware自己回滚
+//                     2. ware可以自己使用自解锁模式，延迟队列
             WareSkuLockVo lockVo = new WareSkuLockVo();
             lockVo.setOrderSn(orderCreateTo.getOrder().getOrderSn());
             // TIP 利用stream.map产生更新后的同类型数据
