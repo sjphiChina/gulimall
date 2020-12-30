@@ -27,6 +27,7 @@ import com.atguigu.gulimall.order.vo.SpuInfoVo;
 import com.atguigu.gulimall.order.vo.SubmitOrderResponseVo;
 import com.atguigu.gulimall.order.vo.WareSkuLockVo;
 import com.mysql.cj.x.protobuf.MysqlxCrud;
+import io.seata.spring.annotation.GlobalTransactional;
 import lombok.ToString;
 import org.aspectj.weaver.ast.Or;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -186,7 +187,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
     // KNOW DB事务的传播行为
 //    @Transactional(propagation = Propagation.REQUIRED)
 //    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    Transactional
+    // KNOW alibaba seata分布式事务
+    @GlobalTransactional
+    @Transactional
     @Override
     public SubmitOrderResponseVo submitOrder(OrderSubmitVo vo) {
         // TIP 用threadlocal将OrderSubmitVo共享
@@ -260,7 +263,10 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         this.save(orderEntity);
         List<OrderItemEntity> orderItemEntities = orderCreateTo.getOrderItems();
         // KNOW 数据saveBatch批量保存
-        orderItemService.saveBatch(orderItemEntities);
+        // Alibaba Seata 0.7.1 不支持saveBatch，会抛出NotYetSupportException
+        //orderItemService.saveBatch(orderItemEntities);
+        for (OrderItemEntity itemEntity: orderItemEntities)
+            orderItemService.save(itemEntity);
     }
 
     private OrderCreateTo createOrder() {
