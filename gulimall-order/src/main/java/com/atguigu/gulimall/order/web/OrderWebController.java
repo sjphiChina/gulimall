@@ -37,7 +37,7 @@ public class OrderWebController {
     public String submitOrder(OrderSubmitVo vo, Model model, RedirectAttributes redirectAttributes) {
         try {
             SubmitOrderResponseVo responseVo = orderService.submitOrder(vo);
-            log.info("订单提交的数据：{}", vo);
+            log.info("收到提交订单的请求，OrderSubmitVo数据：{}", vo);
             if (responseVo.getCode() == 0) {
                 //下单成功则转到支付页面
                 model.addAttribute("submitOrderResponse", responseVo);

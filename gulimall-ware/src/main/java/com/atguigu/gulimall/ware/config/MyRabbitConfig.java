@@ -55,7 +55,7 @@ public class MyRabbitConfig {
         Map<String, Object> arguments = new HashMap<>();
         arguments.put("x-dead-letter-exchange", "stock-event-exchange");
         arguments.put("x-dead-letter-routing-key", "stock.release.order");
-        arguments.put("x-message-ttl", 1000 * 60 * 2);
+        arguments.put("x-message-ttl", 1000 * 60 * 10);
         return new Queue("stock.delay.queue", true, false, false, arguments);
     }
 

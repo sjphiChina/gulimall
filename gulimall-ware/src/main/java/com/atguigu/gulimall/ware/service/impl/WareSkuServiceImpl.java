@@ -1,6 +1,7 @@
 package com.atguigu.gulimall.ware.service.impl;
 
 import com.alibaba.fastjson.TypeReference;
+import com.atguigu.common.to.mq.OrderTo;
 import com.atguigu.common.to.mq.StockDetailTo;
 import com.atguigu.common.to.mq.StockLockedTo;
 import com.atguigu.common.utils.R;
@@ -189,6 +190,8 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
             // case video294
             // 如果每一个商品都锁定成功，将当前商品锁定了几件的工作单消息发给mq
             // 如果锁定失败，前面保存
+
+            // !!!!!!!锁定了2次
             for (Long wareId : wareIds) {
                 //返回0代表失败
                 Long count = wareSkuDao.lockSkuStock(skuId, wareId, hasStock.getLockCount());
@@ -255,6 +258,23 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
         } else {
             //库存锁定失败，库存回滚了，无需解锁，告诉mq，可以删除message
             //channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+        }
+    }
+
+    //防止因为order服务卡顿，导致订单状态消息一直改不了，而库存消息优先到期释放库存的问题。
+    @Transactional
+    @Override
+    public void unlockStock(OrderTo to) {
+        log.warn("解锁库存，因为原始订单关闭={}", to.toString());
+        String orderSn = to.getOrderSn();
+        //查一下最新的库存状态，防止重复解锁库存
+        WareOrderTaskEntity wareOrderTaskEntity = wareOrderTaskService.getOrderTaskByOrderSn(orderSn);
+        Long id = wareOrderTaskEntity.getId();
+        //按照工作单找到所有还没解锁的库存，进行解锁
+        List<WareOrderTaskDetailEntity> entities = wareOrderTaskDetailService
+                .list(new QueryWrapper<WareOrderTaskDetailEntity>().eq("task_id", id).eq("lock_status", 1));
+        for (WareOrderTaskDetailEntity entity: entities) {
+            unLockStock(entity.getSkuId(), entity.getWareId(), entity.getSkuNum(), entity.getId());
         }
     }
 

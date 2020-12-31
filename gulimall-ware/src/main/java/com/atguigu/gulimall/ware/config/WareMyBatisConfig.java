@@ -13,7 +13,7 @@ import org.springframework.util.StringUtils;
 
 import javax.sql.DataSource;
 
-@EnableTransactionManagement
+//@EnableTransactionManagement
 @MapperScan("com.atguigu.gulimall.ware.dao")
 @Configuration
 public class WareMyBatisConfig {
@@ -29,15 +29,16 @@ public class WareMyBatisConfig {
         return paginationInterceptor;
     }
 
-    @Autowired
-    DataSourceProperties dataSourceProperties;
+    //目前采用基于RabbitMQ的消息最终一致性来保证分布式事务，注销Seata的使用
+    //    @Autowired
+    //    DataSourceProperties dataSourceProperties;
 
-    @Bean
-    public DataSource dataSource(DataSourceProperties dataSourceProperties) {
-        HikariDataSource dataSource = dataSourceProperties.initializeDataSourceBuilder().type(HikariDataSource.class).build();
-        if (StringUtils.hasText(dataSourceProperties.getName())) {
-            dataSource.setPoolName(dataSourceProperties.getName());
-        }
-        return new DataSourceProxy(dataSource);
-    }
+    //    @Bean
+    //    public DataSource dataSource(DataSourceProperties dataSourceProperties) {
+    //        HikariDataSource dataSource = dataSourceProperties.initializeDataSourceBuilder().type(HikariDataSource.class).build();
+    //        if (StringUtils.hasText(dataSourceProperties.getName())) {
+    //            dataSource.setPoolName(dataSourceProperties.getName());
+    //        }
+    //        return new DataSourceProxy(dataSource);
+    //    }
 }

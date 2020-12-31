@@ -4,11 +4,16 @@ import com.alibaba.fastjson.TypeReference;
 import com.atguigu.common.exception.BizCodeEnume;
 import com.atguigu.common.exception.NoStockException;
 import com.atguigu.common.exception.UnknownException;
+import com.atguigu.common.to.mq.OrderTo;
+import com.atguigu.common.utils.PageUtils;
+import com.atguigu.common.utils.Query;
 import com.atguigu.common.utils.R;
 import com.atguigu.common.utils.SnowFlake;
 import com.atguigu.common.vo.MemberVo;
+import com.atguigu.gulimall.order.config.RabbitTemplateWrapper;
 import com.atguigu.gulimall.order.constant.OrderConstant;
-import com.atguigu.gulimall.order.dao.OrderItemDao;
+import com.atguigu.gulimall.order.dao.OrderDao;
+import com.atguigu.gulimall.order.entity.OrderEntity;
 import com.atguigu.gulimall.order.entity.OrderItemEntity;
 import com.atguigu.gulimall.order.enume.OrderStatusEnum;
 import com.atguigu.gulimall.order.feign.CartFeignService;
@@ -17,6 +22,7 @@ import com.atguigu.gulimall.order.feign.ProductFeignService;
 import com.atguigu.gulimall.order.feign.WareFeignService;
 import com.atguigu.gulimall.order.interceptor.LoginUserInterceptor;
 import com.atguigu.gulimall.order.service.OrderItemService;
+import com.atguigu.gulimall.order.service.OrderService;
 import com.atguigu.gulimall.order.to.OrderCreateTo;
 import com.atguigu.gulimall.order.vo.MemberAddressVo;
 import com.atguigu.gulimall.order.vo.OrderConfirmVo;
@@ -26,17 +32,22 @@ import com.atguigu.gulimall.order.vo.SkuStockVo;
 import com.atguigu.gulimall.order.vo.SpuInfoVo;
 import com.atguigu.gulimall.order.vo.SubmitOrderResponseVo;
 import com.atguigu.gulimall.order.vo.WareSkuLockVo;
-import com.mysql.cj.x.protobuf.MysqlxCrud;
-import io.seata.spring.annotation.GlobalTransactional;
-import lombok.ToString;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
-import org.aspectj.weaver.ast.Or;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
 
-import java.lang.reflect.Member;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Date;
@@ -48,23 +59,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.atguigu.common.utils.PageUtils;
-import com.atguigu.common.utils.Query;
-
-import com.atguigu.gulimall.order.dao.OrderDao;
-import com.atguigu.gulimall.order.entity.OrderEntity;
-import com.atguigu.gulimall.order.service.OrderService;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
-import org.springframework.web.context.request.RequestAttributes;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 @Slf4j
 @Service("orderService")
@@ -96,6 +90,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
 
     @Autowired
     StringRedisTemplate redisTemplate;
+
+    @Autowired
+    RabbitTemplate rabbitTemplateWrapper;
 
     /**
      * datacenterId;  数据中心
@@ -247,10 +244,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
                 //库存锁定成功了
                 responseVo.setCode(0);
                 responseVo.setOrder(orderCreateTo.getOrder());
-
-                int i = 1;
-                int test = i/0;
-
+                //发送创建订单消息给mq
+                rabbitTemplateWrapper.convertAndSend("order-event-exchange", "order.create.order", orderCreateTo.getOrder());
             } else {
                 //为让order操作回滚，抛出异常
                 //responseVo.setCode(3);
@@ -269,6 +264,33 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
     public OrderEntity getOrderByOrderSn(String orderSn) {
         OrderEntity entity = this.getOne(new QueryWrapper<OrderEntity>().eq("order_sn", orderSn));
         return entity;
+    }
+
+    @Override
+    public void closeOrder(OrderEntity entity) {
+        //查询这个订单的最新状态
+        OrderEntity entityNew = this.getById(entity.getId());
+        // 只有状态是CREATE_NEW才关单
+        if (entityNew.getStatus() == OrderStatusEnum.CREATE_NEW.getCode()) {
+            //tip 这里是创建了一个新的OrderEntity，而不是用已有的entity和entityNew，这是为了仅更新最小的区域
+            log.warn("关闭订单:{}", entityNew.toString());
+            OrderEntity entityForUpdate = new OrderEntity();
+            entityForUpdate.setId(entity.getId());
+            entityForUpdate.setStatus(OrderStatusEnum.CANCLED.getCode());
+            this.updateById(entityForUpdate);
+            OrderTo orderTo = new OrderTo();
+            BeanUtils.copyProperties(entityNew, orderTo);
+            //发给ware需要解锁库存
+            try {
+                // know 如何保证消息的可靠发送
+                //1.做好消息的确认机制，publisher和consumer，手动ack
+                //2.每一个消息都做好记录，可保存在db，log中，定期将失败的消息再发送一遍
+                rabbitTemplateWrapper.convertAndSend("order-event-exchange", "order.release.other", orderTo);
+            } catch (Exception e) {
+                log.error("发送order.release.other失败，orderTo={}, error={}", orderTo.toString(), e.getMessage(),e);
+            }
+
+        }
     }
 
     private void saveOrder(OrderCreateTo orderCreateTo) {
