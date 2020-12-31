@@ -293,6 +293,21 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         }
     }
 
+    @Override
+    public PageUtils queryPageWithItem(Map<String, Object> params) {
+        MemberVo memberVo = LoginUserInterceptor.loginUser.get();
+        IPage<OrderEntity> page = this.page(new Query<OrderEntity>().getPage(params),
+                new QueryWrapper<OrderEntity>().eq("member_id", memberVo.getId()).orderByDesc("id"));
+        List<OrderEntity> order_sn = page.getRecords().stream().map(order -> {
+            List<OrderItemEntity> itemEntities = orderItemService
+                    .list(new QueryWrapper<OrderItemEntity>().eq("order_sn", order.getOrderSn()));
+            order.setItemEntities(itemEntities);
+            return order;
+        }).collect(Collectors.toList());
+        page.setRecords(order_sn);
+        return new PageUtils(page);
+    }
+
     private void saveOrder(OrderCreateTo orderCreateTo) {
         OrderEntity orderEntity = orderCreateTo.getOrder();
         orderEntity.setModifyTime(new Date());

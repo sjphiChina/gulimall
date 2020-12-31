@@ -28,5 +28,7 @@ public interface OrderService extends IService<OrderEntity> {
     OrderEntity getOrderByOrderSn(String orderSn);
 
     void closeOrder(OrderEntity entity);
+
+    PageUtils queryPageWithItem(Map<String, Object> params);
 }
 
