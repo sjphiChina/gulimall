@@ -2,6 +2,7 @@ package com.atguigu.gulimall.order.interceptor;
 
 import com.atguigu.common.constant.AuthServerConstant;
 import com.atguigu.common.vo.MemberVo;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import javax.servlet.http.HttpServletRequest;
@@ -16,6 +17,12 @@ public class LoginUserInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
             throws Exception {
+        //tip 现在对于特定的请求匹配，匹配成功则放行，不用再检查登录
+        String uri = request.getRequestURI();
+        boolean match = new AntPathMatcher().match("/order/order/status/**", uri);
+        if (match)
+            return true;
+
         HttpSession session = request.getSession();
         MemberVo memberVo = (MemberVo) session.getAttribute(AuthServerConstant.LOGIN_USER);
         if (memberVo != null) {

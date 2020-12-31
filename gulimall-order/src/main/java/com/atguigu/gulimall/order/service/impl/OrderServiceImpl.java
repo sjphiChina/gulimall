@@ -29,6 +29,7 @@ import com.atguigu.gulimall.order.vo.WareSkuLockVo;
 import com.mysql.cj.x.protobuf.MysqlxCrud;
 import io.seata.spring.annotation.GlobalTransactional;
 import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 import org.aspectj.weaver.ast.Or;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -65,7 +66,7 @@ import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-
+@Slf4j
 @Service("orderService")
 public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> implements OrderService {
 
@@ -188,7 +189,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
 //    @Transactional(propagation = Propagation.REQUIRED)
 //    @Transactional(propagation = Propagation.REQUIRES_NEW)
     // KNOW alibaba seata分布式事务
-    @GlobalTransactional
+    //@GlobalTransactional 不再使用Seata的分布式事务，而用mq做最终一致性
     @Transactional
     @Override
     public SubmitOrderResponseVo submitOrder(OrderSubmitVo vo) {
@@ -240,11 +241,16 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
                 return itemVo;
             }).collect(Collectors.toList());
             lockVo.setLocks(orderItemVos);
+            log.info("向ware发送查询库存请求，{}", lockVo);
             R r = wareFeignService.orderLockStock(lockVo);
             if (r.getCode() == 0) {
                 //库存锁定成功了
                 responseVo.setCode(0);
                 responseVo.setOrder(orderCreateTo.getOrder());
+
+                int i = 1;
+                int test = i/0;
+
             } else {
                 //为让order操作回滚，抛出异常
                 //responseVo.setCode(3);
@@ -257,6 +263,12 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
             responseVo.setCode(2);
         }
         return responseVo;
+    }
+
+    @Override
+    public OrderEntity getOrderByOrderSn(String orderSn) {
+        OrderEntity entity = this.getOne(new QueryWrapper<OrderEntity>().eq("order_sn", orderSn));
+        return entity;
     }
 
     private void saveOrder(OrderCreateTo orderCreateTo) {
