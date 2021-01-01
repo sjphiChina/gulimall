@@ -1,9 +1,11 @@
 package com.atguigu.gulimall.coupon.controller;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,6 +32,12 @@ public class SeckillSessionController {
     @Autowired
     private SeckillSessionService seckillSessionService;
 
+    @GetMapping("/latest3DaySession")
+    public R getLatest3DaySession() {
+        List<SeckillSessionEntity> sessions = seckillSessionService.getLatest3DaySession();
+        return R.ok().setData(sessions);
+    }
+
     /**
      * 列表
      */
@@ -40,7 +48,6 @@ public class SeckillSessionController {
 
         return R.ok().put("page", page);
     }
-
 
     /**
      * 信息
