@@ -1,5 +1,6 @@
 package com.atguigu.gulimall.order.service;
 
+import com.atguigu.gulimall.order.entity.PayVo;
 import com.atguigu.gulimall.order.vo.OrderConfirmVo;
 import com.atguigu.gulimall.order.vo.OrderSubmitVo;
 import com.atguigu.gulimall.order.vo.SubmitOrderResponseVo;
@@ -30,5 +31,7 @@ public interface OrderService extends IService<OrderEntity> {
     void closeOrder(OrderEntity entity);
 
     PageUtils queryPageWithItem(Map<String, Object> params);
+
+    String payOrder(PayVo vo);
 }
 

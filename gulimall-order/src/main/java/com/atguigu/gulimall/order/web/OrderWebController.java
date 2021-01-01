@@ -1,6 +1,7 @@
 package com.atguigu.gulimall.order.web;
 
 import com.atguigu.common.vo.MemberVo;
+import com.atguigu.gulimall.order.entity.PayVo;
 import com.atguigu.gulimall.order.interceptor.LoginUserInterceptor;
 import com.atguigu.gulimall.order.service.OrderService;
 import com.atguigu.gulimall.order.vo.OrderConfirmVo;
@@ -36,8 +37,8 @@ public class OrderWebController {
     @PostMapping("/submitOrder")
     public String submitOrder(OrderSubmitVo vo, Model model, RedirectAttributes redirectAttributes) {
         try {
-            SubmitOrderResponseVo responseVo = orderService.submitOrder(vo);
             log.info("收到提交订单的请求，OrderSubmitVo数据：{}", vo);
+            SubmitOrderResponseVo responseVo = orderService.submitOrder(vo);
             if (responseVo.getCode() == 0) {
                 //下单成功则转到支付页面
                 model.addAttribute("submitOrderResponse", responseVo);
@@ -57,5 +58,19 @@ public class OrderWebController {
             redirectAttributes.addFlashAttribute("msg", e.getMessage());
         }
         return "redirect:http://order.gulimall.com/toTrade";
+    }
+
+    @PostMapping("/payOrder")
+    public String payOrder(PayVo vo, Model model, RedirectAttributes redirectAttributes) {
+        try {
+            log.info("收到支付的请求，PayVo数据：{}", vo);
+            //video308中提到了对alipay的回复data做签字校验，这里省略
+
+            orderService.payOrder(vo);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            redirectAttributes.addFlashAttribute("msg", e.getMessage());
+        }
+        return "redirect:http://member.gulimall.com/memberOrder.html";
     }
 }

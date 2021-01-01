@@ -10,11 +10,12 @@ import com.atguigu.common.utils.Query;
 import com.atguigu.common.utils.R;
 import com.atguigu.common.utils.SnowFlake;
 import com.atguigu.common.vo.MemberVo;
-import com.atguigu.gulimall.order.config.RabbitTemplateWrapper;
 import com.atguigu.gulimall.order.constant.OrderConstant;
 import com.atguigu.gulimall.order.dao.OrderDao;
 import com.atguigu.gulimall.order.entity.OrderEntity;
 import com.atguigu.gulimall.order.entity.OrderItemEntity;
+import com.atguigu.gulimall.order.entity.PayVo;
+import com.atguigu.gulimall.order.entity.PaymentInfoEntity;
 import com.atguigu.gulimall.order.enume.OrderStatusEnum;
 import com.atguigu.gulimall.order.feign.CartFeignService;
 import com.atguigu.gulimall.order.feign.MemberFeignService;
@@ -23,6 +24,7 @@ import com.atguigu.gulimall.order.feign.WareFeignService;
 import com.atguigu.gulimall.order.interceptor.LoginUserInterceptor;
 import com.atguigu.gulimall.order.service.OrderItemService;
 import com.atguigu.gulimall.order.service.OrderService;
+import com.atguigu.gulimall.order.service.PaymentInfoService;
 import com.atguigu.gulimall.order.to.OrderCreateTo;
 import com.atguigu.gulimall.order.vo.MemberAddressVo;
 import com.atguigu.gulimall.order.vo.OrderConfirmVo;
@@ -39,7 +41,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
@@ -93,6 +94,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
 
     @Autowired
     RabbitTemplate rabbitTemplateWrapper;
+
+    @Autowired
+    PaymentInfoService paymentInfoService;
 
     /**
      * datacenterId;  数据中心
@@ -306,6 +310,25 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         }).collect(Collectors.toList());
         page.setRecords(order_sn);
         return new PageUtils(page);
+    }
+
+    @Override
+    public String payOrder(PayVo vo) {
+        //1. 保存交易流水
+        // video308用的是由支付宝生成的PayAsyncVo，目前我们简化开发，用自己生成PayVo代替
+        PaymentInfoEntity infoEntity = new PaymentInfoEntity();
+        infoEntity.setAlipayTradeNo(UUID.randomUUID().toString());
+        infoEntity.setOrderSn(vo.getTradeNo());
+        infoEntity.setPaymentStatus("success");
+        infoEntity.setCallbackTime(new Date());
+        paymentInfoService.save(infoEntity);
+
+        //2. 修改订单的状态
+        // 这里我们假设支付成功
+        String tradeNo = vo.getTradeNo();
+        this.baseMapper.updateOrderStatus(tradeNo, OrderStatusEnum.PAYED.getCode());
+        
+        return "success";
     }
 
     private void saveOrder(OrderCreateTo orderCreateTo) {

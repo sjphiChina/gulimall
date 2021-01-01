@@ -89,7 +89,14 @@
               <input type="password"><span>忘记支付密码？</span>
             </li>
             <li>
-              <button>立即支付</button>
+              <form action="http://order.gulimall.com/payOrder" method="post">
+                <!--此处的addrIdInput 和 payPriceInput都是写死的数据， video275讲了做法-->
+                <input id="tradeNoInput" type="hidden" name="tradeNo" th:value="${submitOrderResponse.order.orderSn}">
+                <input id="subjectInput" type="hidden" name="subject" th:value="${submitOrderResponse.order.receiverName}">
+                <input id="payPriceInput" type="hidden" name="payPrice" th:value="${submitOrderResponse.order.payAmount}">
+                <input id="bodyInput" type="hidden" name="body" th:value="${submitOrderResponse.order.memberUsername}">
+                <button class="tijiao" type="submit">立即支付</button>
+              </form>
             </li>
           </ul>
         </div>
