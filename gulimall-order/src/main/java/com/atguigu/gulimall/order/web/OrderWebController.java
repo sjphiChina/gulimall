@@ -8,11 +8,13 @@ import com.atguigu.gulimall.order.vo.OrderConfirmVo;
 import com.atguigu.gulimall.order.vo.OrderSubmitVo;
 import com.atguigu.gulimall.order.vo.SubmitOrderResponseVo;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.concurrent.ExecutionException;
@@ -67,6 +69,20 @@ public class OrderWebController {
             //video308中提到了对alipay的回复data做签字校验，这里省略
 
             orderService.payOrder(vo);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            redirectAttributes.addFlashAttribute("msg", e.getMessage());
+        }
+        return "redirect:http://member.gulimall.com/memberOrder.html";
+    }
+
+    @GetMapping("/payOrder")
+    public String payOrder(@RequestParam("orderSn") String orderSn, Model model, RedirectAttributes redirectAttributes) {
+        try {
+            log.info("收到支付的请求，orderSn：{}", orderSn);
+            //video308中提到了对alipay的回复data做签字校验，这里省略
+
+            orderService.payOrder(orderSn);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             redirectAttributes.addFlashAttribute("msg", e.getMessage());

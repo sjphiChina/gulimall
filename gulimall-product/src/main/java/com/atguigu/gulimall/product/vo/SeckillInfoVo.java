@@ -42,4 +42,6 @@ public class SeckillInfoVo {
     private Long endTime;
     //商品秒杀随机码
     private String randomCode;
+
+    private String path;
 }

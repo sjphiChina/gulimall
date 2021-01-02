@@ -190,7 +190,11 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
             R seckillInfo = seckillFeignService.getSkuSeckillInfo(skuId);
             if (seckillInfo.getCode() == 0) {
                 SeckillInfoVo infoVo = seckillInfo.getData(new TypeReference<SeckillInfoVo>(){});
-                skuItemVo.setSeckillInfoVo(infoVo);
+                if(infoVo != null) {
+                    String path = infoVo.getSkuId()+"_"+infoVo.getPromotionSessionId()+"&key="+infoVo.getRandomCode();
+                    infoVo.setPath(path);
+                    skuItemVo.setSeckillInfoVo(infoVo);
+                }
             }
         });
 

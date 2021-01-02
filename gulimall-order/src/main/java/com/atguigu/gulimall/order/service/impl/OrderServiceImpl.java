@@ -5,6 +5,7 @@ import com.atguigu.common.exception.BizCodeEnume;
 import com.atguigu.common.exception.NoStockException;
 import com.atguigu.common.exception.UnknownException;
 import com.atguigu.common.to.mq.OrderTo;
+import com.atguigu.common.to.mq.SeckillOrderTo;
 import com.atguigu.common.utils.PageUtils;
 import com.atguigu.common.utils.Query;
 import com.atguigu.common.utils.R;
@@ -313,6 +314,13 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
     }
 
     @Override
+    public String payOrder(String orderSn) {
+        PayVo vo = new PayVo();
+        vo.setTradeNo(orderSn);
+        return payOrder(vo);
+    }
+
+    @Override
     public String payOrder(PayVo vo) {
         //1. 保存交易流水
         // video308用的是由支付宝生成的PayAsyncVo，目前我们简化开发，用自己生成PayVo代替
@@ -329,6 +337,25 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         this.baseMapper.updateOrderStatus(tradeNo, OrderStatusEnum.PAYED.getCode());
         
         return "success";
+    }
+
+    @Override
+    public void createSeckillOrder(SeckillOrderTo orderTo) {
+        //保存订单信息
+        OrderEntity entity = new OrderEntity();
+        entity.setOrderSn(orderTo.getOrderSn());
+        entity.setMemberId(orderTo.getMemberId());
+        entity.setStatus(OrderStatusEnum.CREATE_NEW.getCode());
+        BigDecimal price = orderTo.getSeckillPrice().multiply(new BigDecimal((""+orderTo.getNum())));
+        entity.setPayAmount(price);
+        this.save(entity);
+
+        // 保存订单项信息
+        OrderItemEntity orderItemEntity = new OrderItemEntity();
+        orderItemEntity.setOrderSn(orderTo.getOrderSn());
+        orderItemEntity.setRealAmount(price);
+        orderItemEntity.setSkuQuantity(orderTo.getNum().intValue());
+        orderItemService.save(orderItemEntity);
     }
 
     private void saveOrder(OrderCreateTo orderCreateTo) {

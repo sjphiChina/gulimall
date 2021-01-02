@@ -642,8 +642,34 @@
 
 								</div>
 							</div>
-							<div class="box-btns-two" >
-								<a href="#" th:href="${'javascript:addToCartB('+item.skuInfoEntity.skuId+')'}">
+
+<!--							<div class="box-btns-two"-->
+<!--								 th:if="${item.seckillInfoVo != null && #dates.createNow().getTime() >= item.seckillInfoVo.startTime && #dates.createNow().getTime() <= item.seckillInfoVo.endTime}">-->
+<!--								<a href="#"-->
+<!--								   th:href="${'javascript:seckillCart('+item.skuInfoEntity.skuId+','+item.seckillInfoVo.promotionSessionId+','+item.seckillInfoVo.randomCode+')'}">-->
+<!--									立即抢购-->
+<!--								</a>-->
+<!--							</div>-->
+<!--							<div class="box-btns-two"-->
+<!--								 th:else>-->
+<!--								<a href="#" th:href="${'javascript:addToCartB('+item.skuInfoEntity.skuId+')'}">-->
+<!--									加入购物车-->
+<!--								</a>-->
+<!--							</div>-->
+
+							<div class="box-btns-two">
+<!--								<a href="#"-->
+<!--								   th:if="${item.seckillInfoVo != null && #dates.createNow().getTime() >= item.seckillInfoVo.startTime && #dates.createNow().getTime() <= item.seckillInfoVo.endTime}" th:href="${'javascript:seckillCart('+item.seckillInfoVo.path+')'}">-->
+<!--									立即抢购-->
+<!--								</a>-->
+								<a
+								   th:if="${item.seckillInfoVo != null && #dates.createNow().getTime() >= item.seckillInfoVo.startTime && #dates.createNow().getTime() <= item.seckillInfoVo.endTime}"
+								   th:href="'http://seckill.gulimall.com/kill?killId='+${item.seckillInfoVo.promotionSessionId}+'_'+${item.skuInfoEntity.skuId}+'&key='+${item.seckillInfoVo.randomCode}+'&num=1'">
+									立即抢购
+								</a>
+								<a
+										th:if="${item.seckillInfoVo == null || #dates.createNow().getTime() < item.seckillInfoVo.startTime || #dates.createNow().getTime() > item.seckillInfoVo.endTime}" href="#"
+								   th:href="${'javascript:addToCartB('+item.skuInfoEntity.skuId+')'}">
 									加入购物车
 								</a>
 							</div>
@@ -1285,6 +1311,30 @@
 	<script type="text/javascript">
 		function addToCartB(productId) {
 			location.href = "http://cart.gulimall.com/addToCart?skuId="+productId+"&num=1";
+		}
+
+		// $("#secKillA").click(function () {
+		// 	var isLogin = [[${session.loginUser != null}]];
+		// 	if (isLogin) {
+		// 		var killId = $(this).attr("sessionId") + "_" + $(this).attr("skuId");
+		// 		var key = $(this).attr("code");
+		// 		location.href = "http://seckill.gulimall.com/kill?killId=" + killId + "&key=" + key + "&num=1";
+		// 	} else {
+		// 		alert("请先登录");
+		// 	}
+		// 	return false;
+		// });
+		function seckillCart(id) {
+			var isLogin = [[${session.loginUser != null}]];
+			if (isLogin) {
+				// tip 上面的做法总是报告Uncaught ReferenceError: $ is not defined， 实在解决不了，想到这个做法，废了好长时间。。。。
+				// 不 这个做法在1332行依然报同样的错误，最后的解决方案是667行
+				var killId = $(this).attr("sessionId") + "_" + $(this).attr("skuId");
+				var key = $(this).attr("code");
+				location.href = "http://seckill.gulimall.com/kill?killId=" + killId + "&key=" + key + "&num=1";
+			} else {
+				alert("请先登录");
+			}
 		}
 	</script>
 
