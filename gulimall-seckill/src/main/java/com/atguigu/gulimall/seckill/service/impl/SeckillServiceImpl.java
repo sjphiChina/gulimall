@@ -18,8 +18,14 @@ import org.springframework.data.redis.core.BoundHashOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
+import javax.xml.crypto.Data;
+import java.util.Collections;
+import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
@@ -56,6 +62,60 @@ public class SeckillServiceImpl implements SeckillService {
                 saveSessionSkuInfos(sessionData);
             }
         }
+    }
+
+    @Override
+    public List<SecKillSkuRedisTo> getCurrentSeckillSkus() {
+        // 确定当前时间属于哪个秒杀场次
+        // 1970 -
+        long time = new Date().getTime();
+        Set<String> keys = redisTemplate.keys(SESSIONS_CACHE_PREFIX + "*");
+        for (String key: keys) {
+            String replace = key.replace(SESSIONS_CACHE_PREFIX, "");
+            String[] s = replace.split("_");
+            Long start = Long.parseLong(s[0]);
+            Long end = Long.parseLong(s[1]);
+            if (time >= start && time <= end) {
+                // 获取这个秒杀场次需要的所有商品信息
+                List<String> range = redisTemplate.opsForList().range(key, -100, 100);
+                BoundHashOperations<String, String, String> ops = redisTemplate.boundHashOps(SKUKILL_CACHE_PREFIX);
+                List<String> list = ops.multiGet(range);
+                if (list != null && list.size() > 0) {
+                    List<SecKillSkuRedisTo> collect = list.stream().map(item->{
+                        SecKillSkuRedisTo redisTo = JSON.parseObject((String) item, SecKillSkuRedisTo.class);
+                        //redisTo.setRandomCode(null);
+                        return redisTo;
+                    }).collect(Collectors.toList());
+                    return collect;
+                }
+                break;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public SecKillSkuRedisTo getSkuSeckillInfo(Long skuId) {
+        // 1. 找到所有参与秒杀的商品的key
+        BoundHashOperations<String, String, String> ops = redisTemplate.boundHashOps(SKUKILL_CACHE_PREFIX);
+        Set<String> keys = ops.keys();
+        if (keys != null && keys.size() > 0) {
+            String regx = "\\d_" + skuId;
+            for (String key : keys) {
+                //6_4
+                // 匹配skuid
+                if (Pattern.matches(regx, key)) {
+                    String json = ops.get(key);
+                    SecKillSkuRedisTo to = JSON.parseObject(json, SecKillSkuRedisTo.class);
+                    // case 查看是否需要携带验证码
+                    long currentTime = new Date().getTime();
+                    if (to.getEndTime() < currentTime || to.getStartTime() > currentTime)
+                        to.setRandomCode(null);
+                    return to;
+                }
+            }
+        }
+        return null;
     }
 
     private void saveSessionInfos(List<SeckillSessionsWithSkus> sessions) {
