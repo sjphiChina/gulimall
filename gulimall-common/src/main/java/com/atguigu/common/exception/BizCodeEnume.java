@@ -18,6 +18,7 @@ package com.atguigu.common.exception;
 public enum BizCodeEnume {
     UNKNOW_EXCEPTION(10000,"系统未知异常"),
     VAILD_EXCEPTION(10001,"参数格式校验失败"),
+    TOO_MANY_REQUEST(10002,"请求流量过大"),
     PRODUCT_UP_EXCEPTION(16001, "商品上架异常"),
     USER_EXIST_EXCEPTION(12001, "用户名已经存在"),
     PHONE_EXIST_EXCEPTION(12002, "手机号码已存在"),
