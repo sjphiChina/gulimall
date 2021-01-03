@@ -1,3 +1,6 @@
+release/atguigu-0.0.3.1:
+预计对应video339-359，完成至课程kubesphere的所有内容。
+
 release/atguigu-0.0.3.0:
 基于master，创建此release/atguigu-0.0.3.x branch系列：之前已将release/atguigu-0.0.2.8整合到master
 此release/atguigu-0.0.3.x branch系列将对应课程高可用集群篇的全部内容。
