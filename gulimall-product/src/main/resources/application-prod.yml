@@ -1,0 +1,36 @@
+spring:
+  datasource:
+    username: root
+    password: 123456
+    url: jdbc:mysql://mysql-master.gulimall:3306/gulimall_pms
+    driver-class-name: com.mysql.jdbc.Driver
+  cloud:
+    nacos:
+      discovery:
+        server-addr: nacos-service.gulimall:8848
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+  thymeleaf:
+    cache: false
+  redis:
+    host: redis.gulimall
+    port: 6379
+
+
+
+mybatis-plus:
+  mapper-locations: classpath:/mapper/**/*.xml
+  global-config:
+    db-config:
+      id-type: auto
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+server:
+  port: 14000
+#logging:
+#  level:
+#    com.atguigu.gulimall: debug
+#  pattern:
+#    console: %d{yyyy-MM-dd HH:mm:ss} - %logger{100} - %msg%n
+
+
