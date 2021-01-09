@@ -16,4 +16,4 @@ spring:
 #    db-config:
 #      id-type: auto
 server:
-  port: 19000
+  port: 8080
