@@ -56,7 +56,7 @@ spec:
       protocol: TCP
       port: 8080
       targetPort: 8080
-      nodePort: 20012
+      nodePort: 31012
   selector:
     app: gulimall-renren-fast
   type: NodePort
