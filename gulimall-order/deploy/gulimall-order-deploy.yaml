@@ -1,24 +1,24 @@
 kind: Deployment
 apiVersion: apps/v1
 metadata:
-  name: gulimall-ware
+  name: gulimall-order
   namespace: gulimall
   labels:
-    app: gulimall-ware
+    app: gulimall-order
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: gulimall-ware
+      app: gulimall-order
   template:
     metadata:
       creationTimestamp: null
       labels:
-        app: gulimall-ware
+        app: gulimall-order
     spec:
       containers:
-        - name: gulimall-ware
-          image: $REGISTRY/$DOCKERHUB_NAMESPACE/$APP_NAME:$TAG_NAME
+        - name: gulimall-order
+          image: $REGISTRY/$DOCKERHUB_NAMESPACE/$PROJECT_NAME:$PROJECT_VRESION
           ports:
             - containerPort: 8080
               protocol: TCP
@@ -46,18 +46,18 @@ spec:
 kind: Service
 apiVersion: v1
 metadata:
-  name: gulimall-ware
+  name: gulimall-order
   namespace: gulimall
   labels:
-    app: gulimall-ware
+    app: gulimall-order
 spec:
   ports:
     - name: http
       protocol: TCP
       port: 8080
       targetPort: 8080
-      nodePort: 20011
+      nodePort: 20006
   selector:
-    app: gulimall-ware
+    app: gulimall-order
   type: NodePort
   sessionAffinity: None

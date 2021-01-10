@@ -1,24 +1,24 @@
 kind: Deployment
 apiVersion: apps/v1
 metadata:
-  name: gulimall-seckill
+  name: gulimall-product
   namespace: gulimall
   labels:
-    app: gulimall-seckill
+    app: gulimall-product
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: gulimall-seckill
+      app: gulimall-product
   template:
     metadata:
       creationTimestamp: null
       labels:
-        app: gulimall-seckill
+        app: gulimall-product
     spec:
       containers:
-        - name: gulimall-seckill
-          image: $REGISTRY/$DOCKERHUB_NAMESPACE/$APP_NAME:$TAG_NAME
+        - name: gulimall-product
+          image: $REGISTRY/$DOCKERHUB_NAMESPACE/$PROJECT_NAME:$PROJECT_VRESION
           ports:
             - containerPort: 8080
               protocol: TCP
@@ -46,18 +46,18 @@ spec:
 kind: Service
 apiVersion: v1
 metadata:
-  name: gulimall-seckill
+  name: gulimall-product
   namespace: gulimall
   labels:
-    app: gulimall-seckill
+    app: gulimall-product
 spec:
   ports:
     - name: http
       protocol: TCP
       port: 8080
       targetPort: 8080
-      nodePort: 20009
+      nodePort: 20007
   selector:
-    app: gulimall-seckill
+    app: gulimall-product
   type: NodePort
   sessionAffinity: None

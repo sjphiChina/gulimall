@@ -1,24 +1,24 @@
 kind: Deployment
 apiVersion: apps/v1
 metadata:
-  name: gulimall-auth-server
+  name: gulimall-ware
   namespace: gulimall
   labels:
-    app: gulimall-auth-server
+    app: gulimall-ware
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: gulimall-auth-server
+      app: gulimall-ware
   template:
     metadata:
       creationTimestamp: null
       labels:
-        app: gulimall-auth-server
+        app: gulimall-ware
     spec:
       containers:
-        - name: gulimall-auth-server
-          image: $REGISTRY/$DOCKERHUB_NAMESPACE/$APP_NAME:$TAG_NAME
+        - name: gulimall-ware
+          image: $REGISTRY/$DOCKERHUB_NAMESPACE/$PROJECT_NAME:$PROJECT_VRESION
           ports:
             - containerPort: 8080
               protocol: TCP
@@ -46,18 +46,18 @@ spec:
 kind: Service
 apiVersion: v1
 metadata:
-  name: gulimall-auth-server
+  name: gulimall-ware
   namespace: gulimall
   labels:
-    app: gulimall-auth-server
+    app: gulimall-ware
 spec:
   ports:
     - name: http
       protocol: TCP
       port: 8080
       targetPort: 8080
-      nodePort: 20001
+      nodePort: 20011
   selector:
-    app: gulimall-auth-server
+    app: gulimall-ware
   type: NodePort
   sessionAffinity: None
