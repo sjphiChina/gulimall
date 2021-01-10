@@ -12,7 +12,6 @@ spec:
       app: gulimall-auth-server
   template:
     metadata:
-      creationTimestamp: null
       labels:
         app: gulimall-auth-server
     spec:

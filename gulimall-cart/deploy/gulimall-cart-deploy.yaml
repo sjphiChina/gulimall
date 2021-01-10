@@ -12,7 +12,6 @@ spec:
       app: gulimall-cart
   template:
     metadata:
-      creationTimestamp: null
       labels:
         app: gulimall-cart
     spec:

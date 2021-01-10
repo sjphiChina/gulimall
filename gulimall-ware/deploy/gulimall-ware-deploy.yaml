@@ -12,7 +12,6 @@ spec:
       app: gulimall-ware
   template:
     metadata:
-      creationTimestamp: null
       labels:
         app: gulimall-ware
     spec:

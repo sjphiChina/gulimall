@@ -12,7 +12,6 @@ spec:
       app: gulimall-third-party
   template:
     metadata:
-      creationTimestamp: null
       labels:
         app: gulimall-third-party
     spec:

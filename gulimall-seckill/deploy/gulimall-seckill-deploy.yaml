@@ -12,7 +12,6 @@ spec:
       app: gulimall-seckill
   template:
     metadata:
-      creationTimestamp: null
       labels:
         app: gulimall-seckill
     spec:

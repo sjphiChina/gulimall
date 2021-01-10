@@ -12,7 +12,6 @@ spec:
       app: gulimall-order
   template:
     metadata:
-      creationTimestamp: null
       labels:
         app: gulimall-order
     spec:

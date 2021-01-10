@@ -12,7 +12,6 @@ spec:
       app: gulimall-coupon
   template:
     metadata:
-      creationTimestamp: null
       labels:
         app: gulimall-coupon
     spec:
