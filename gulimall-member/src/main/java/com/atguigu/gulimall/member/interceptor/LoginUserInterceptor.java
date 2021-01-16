@@ -19,7 +19,7 @@ public class LoginUserInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
             throws Exception {
-        log.info("Received requst: {}", request.getRequestURI());
+        log.info("Receive request: {}", request.getRequestURI());
         //tip 现在对于特定的请求匹配，匹配成功则放行，不用再检查登录
         String uri = request.getRequestURI();
         //一定要改成对login访问放行，否则memberVo为空，auth又无法产生memberVo,陷入死循环
