@@ -1,5 +1,6 @@
 package com.atguigu.gulimall.product;
 
+import lombok.extern.slf4j.Slf4j;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -62,9 +63,11 @@ import org.springframework.session.data.redis.config.annotation.web.http.EnableR
 @EnableDiscoveryClient
 @MapperScan("com.atguigu.gulimall.product.dao")
 @SpringBootApplication
+@Slf4j
 public class GulimallProductApplication {
 
     public static void main(String[] args) {
+        log.info("!!!!!!!!!!!!To see start");
         SpringApplication.run(GulimallProductApplication.class, args);
     }
 
