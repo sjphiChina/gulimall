@@ -21,9 +21,9 @@ pipeline {
       steps {
         git(credentialsId: 'github-sjphiChina', url: 'https://github.com/sjphiChina/gulimall.git', branch: "$BRANCH_NAME", changelog: true, poll: false)
         sh 'echo 正在构建 $PROJECT_NAME 版本号：$PROJECT_VRESION 将会提交给 $REGISTRY 镜像仓库'
-        sh "echo 正在编译项目"
+        sh "echo 开始编译项目"
         container ('maven') {
-          sh "mvn clean install -Dmaven.test.skip=true -gs `pwd`/mvn-settings.xml"
+          sh "mvn -X clean install -Dmaven.test.skip=true -gs `pwd`/mvn-settings.xml"
         }
       }
     }
@@ -45,7 +45,7 @@ pipeline {
     stage ('build & push镜像') {
             steps {
                 container ('maven') {
-                    sh 'mvn -Dmaven.test.skip=true -gs `pwd`/mvn-settings.xml clean package'
+                    sh 'mvn -X -Dmaven.test.skip=true -gs `pwd`/mvn-settings.xml clean package'
                     sh 'cd $PROJECT_NAME && docker build -f Dockerfile -t $REGISTRY/$DOCKERHUB_NAMESPACE/$PROJECT_NAME:SNAPSHOT-$BRANCH_NAME-$BUILD_NUMBER .'
                     withCredentials([usernamePassword(passwordVariable : 'DOCKER_PASSWORD' ,usernameVariable : 'DOCKER_USERNAME' ,credentialsId : "$DOCKER_CREDENTIAL_ID" ,)]) {
                         sh 'echo "$DOCKER_PASSWORD" | docker login $REGISTRY -u "$DOCKER_USERNAME" --password-stdin'
