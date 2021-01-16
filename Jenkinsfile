@@ -23,7 +23,7 @@ pipeline {
         sh 'echo 正在构建 $PROJECT_NAME 版本号：$PROJECT_VRESION 将会提交给 $REGISTRY 镜像仓库'
         sh "echo 开始编译项目"
         container ('maven') {
-          sh "mvn -X clean install -Dmaven.test.skip=true -gs `pwd`/mvn-settings.xml"
+          sh "mvn clean install -Dmaven.test.skip=true -gs `pwd`/mvn-settings.xml"
         }
       }
     }
@@ -45,7 +45,7 @@ pipeline {
     stage ('build & push镜像') {
             steps {
                 container ('maven') {
-                    sh 'mvn -X -Dmaven.test.skip=true -gs `pwd`/mvn-settings.xml clean package'
+                    sh 'mvn -Dmaven.test.skip=true -gs `pwd`/mvn-settings.xml clean package'
                     sh 'cd $PROJECT_NAME && docker build -f Dockerfile -t $REGISTRY/$DOCKERHUB_NAMESPACE/$PROJECT_NAME:SNAPSHOT-$BRANCH_NAME-$BUILD_NUMBER .'
                     withCredentials([usernamePassword(passwordVariable : 'DOCKER_PASSWORD' ,usernameVariable : 'DOCKER_USERNAME' ,credentialsId : "$DOCKER_CREDENTIAL_ID" ,)]) {
                         sh 'echo "$DOCKER_PASSWORD" | docker login $REGISTRY -u "$DOCKER_USERNAME" --password-stdin'
@@ -57,7 +57,7 @@ pipeline {
     }
     stage('deploy to dev 现在是部署到k8s') {
           steps {
-            input(id: "deploy-to-dev-$PROJECT_NAME", message: "是否将 $PROJECT_NAME 部署到k8s集群?")
+//            input(id: "deploy-to-dev-$PROJECT_NAME", message: "是否将 $PROJECT_NAME 部署到k8s集群?")
             kubernetesDeploy(configs: "$PROJECT_NAME/deploy/**", enableConfigSubstitution: true, kubeconfigId: "$KUBECONFIG_CREDENTIAL_ID")
           }
         }
