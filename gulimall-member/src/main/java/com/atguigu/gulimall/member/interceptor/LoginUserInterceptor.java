@@ -32,6 +32,7 @@ public class LoginUserInterceptor implements HandlerInterceptor {
         if (memberVo != null) {
             loginUser.set(memberVo);
         } else {
+            log.warn("Redirect to: http://auth.gulimall.com/login.html");
             request.getSession().setAttribute("msg", "请先登录");
             response.sendRedirect("http://auth.gulimall.com/login.html");
             return false;
