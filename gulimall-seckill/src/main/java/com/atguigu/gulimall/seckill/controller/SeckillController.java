@@ -23,9 +23,12 @@ public class SeckillController {
     @GetMapping("/currentSeckillSkus")
     public R getCurrentSeckillSkus() {
         List<SecKillSkuRedisTo> vos = seckillService.getCurrentSeckillSkus();
-        log.debug("当前可参与秒杀的商品: {}", vos.stream().map(item -> {
-            return item.getSkuId();
-        }).collect(Collectors.toList()));
+        if (vos != = null)
+            log.debug("当前可参与秒杀的商品: {}", vos.stream().map(item -> {
+                return item.getSkuId();
+            }).collect(Collectors.toList()));
+        else
+            log.warn("没有可供秒杀的商品");
         return R.ok().setData(vos);
     }
 
