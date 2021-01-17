@@ -3,13 +3,17 @@ package com.atguigu.gulimall.seckill.controller;
 import com.atguigu.common.utils.R;
 import com.atguigu.gulimall.seckill.service.SeckillService;
 import com.atguigu.gulimall.seckill.to.SecKillSkuRedisTo;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
+@Slf4j
 @RestController
 public class SeckillController {
     @Autowired
@@ -19,6 +23,9 @@ public class SeckillController {
     @GetMapping("/currentSeckillSkus")
     public R getCurrentSeckillSkus() {
         List<SecKillSkuRedisTo> vos = seckillService.getCurrentSeckillSkus();
+        log.debug("当前可参与秒杀的商品: {}", vos.stream().map(item -> {
+            return item.getSkuId();
+        }).collect(Collectors.toList()));
         return R.ok().setData(vos);
     }
 
