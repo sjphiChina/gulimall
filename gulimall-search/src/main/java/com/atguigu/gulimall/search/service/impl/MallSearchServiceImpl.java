@@ -191,6 +191,7 @@ public class MallSearchServiceImpl implements MallSearchService {
     }
 
     private SearchResult buildSearchResult(SearchResponse searchResponse, SearchParam searchParam) {
+        log.debug("Received searchResponse: {}", searchResponse.toString());
         SearchResult searchResult = new SearchResult();
         //1. 返回的所有查询到的商品
         SearchHits searchHits = searchResponse.getHits();
