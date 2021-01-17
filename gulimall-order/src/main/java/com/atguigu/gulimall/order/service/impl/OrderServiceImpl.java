@@ -360,6 +360,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
 
     private void saveOrder(OrderCreateTo orderCreateTo) {
         OrderEntity orderEntity = orderCreateTo.getOrder();
+        orderEntity.setCreateTime(new Date());
         orderEntity.setModifyTime(new Date());
         //orderDao.insert(orderEntity);
         this.save(orderEntity);

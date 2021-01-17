@@ -203,7 +203,7 @@
         <table class="table" th:each="order:${orders.page.list}">
           <tr>
             <td colspan="7" style="background:#F7F7F7" >
-              <span style="color:#AAAAAA">[[${order.createTime}]]</span>
+              <span style="color:#AAAAAA">[[${#dates.format(new java.util.Date(order.createTime),"yyyy-MM-dd HH:mm:ss")}]]</span>
               <span><ruby style="color:#AAAAAA">订单号:</ruby> [[${order.orderSn}]]</span>
               <span>gulimall<i class="table_i"></i></span>
               <i class="table_i5 isShow"></i>
