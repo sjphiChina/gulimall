@@ -1,4 +1,8 @@
-release/atguigu-0.0.3.1:
+atguigu-0.3.2:
+atguigu-0.3.1已经整合到master。基于master，创建atguigu-0.3.2。这个release将专注于处理上一版本遗留的各种问题。//2021-01-21
+
+atguigu-0.0.3.1: 2021-01-21
+#release/atguigu-0.0.3.1
 #预计对应video339-359，完成至课程kubesphere的所有内容。
 对应video339-408全部内容。当前版本可以部署到k8s，实现正常登陆，购物，秒杀，搜索等基本功能。
 但是config，sentinel并不工作，zipkin部分服务不显示且无法显示依赖关系，这些留作下一个release处理。
