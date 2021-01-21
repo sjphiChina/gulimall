@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 public interface CouponFeignService {
 
 
+    // know 只要json数据模型是兼容的。双方服务无需使用同一个to
     /**
      * 1、CouponFeignService.saveSpuBounds(spuBoundTo);
      *      1）、@RequestBody将这个对象转为json。

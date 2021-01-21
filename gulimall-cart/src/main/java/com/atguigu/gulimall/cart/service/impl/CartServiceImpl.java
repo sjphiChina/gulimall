@@ -74,6 +74,7 @@ public class CartServiceImpl implements CartService {
         return cartItemVo;
     }
 
+    // know BoundHashOperations<String, Object, Object>使用
     @Override
     public CartItemVo getCartItemVo(Long skuId) {
         BoundHashOperations<String, Object, Object> ops = getCartOps();

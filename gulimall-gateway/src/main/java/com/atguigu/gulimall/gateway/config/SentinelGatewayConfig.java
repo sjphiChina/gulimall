@@ -5,7 +5,6 @@ import com.alibaba.csp.sentinel.adapter.gateway.sc.callback.GatewayCallbackManag
 import com.alibaba.fastjson.JSON;
 import com.atguigu.common.exception.BizCodeEnume;
 import com.atguigu.common.utils.R;
-import com.netflix.loadbalancer.Server;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.function.server.ServerResponse;

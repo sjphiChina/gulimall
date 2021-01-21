@@ -26,7 +26,6 @@ public class ElasticSaveController {
     public R productStatusUp(@RequestBody List<SkuEsModel> skuEsModels){
         boolean b = false;
         try {
-
             b = productSaveService.productStatusUp(skuEsModels);
         } catch (IOException e) {
            log.error("商品上架错误，{}", e);

@@ -27,7 +27,6 @@ public class CartInterceptor implements HandlerInterceptor {
         HttpSession session = request.getSession();
         MemberVo memberVo = (MemberVo) session.getAttribute(AuthServerConstant.LOGIN_USER);
         if (memberVo != null) {
-
             userInfoTo.setUserId(memberVo.getId());
         }
         Cookie[] cookies = request.getCookies();
@@ -37,7 +36,6 @@ public class CartInterceptor implements HandlerInterceptor {
                 if (name.equals(CartConstant.TEMP_USER_COOKIE_NAME)) {
                     userInfoTo.setUserKey(cookie.getValue());
                     userInfoTo.setTempUser(true);
-
                 }
             }
         }
