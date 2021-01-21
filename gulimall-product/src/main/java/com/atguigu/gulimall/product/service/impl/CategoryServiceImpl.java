@@ -79,10 +79,6 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         }).sorted((menu1,menu2)->{
             return (menu1.getSort()==null?0:menu1.getSort()) - (menu2.getSort()==null?0:menu2.getSort());
         }).collect(Collectors.toList());
-
-
-
-
         return level1Menus;
     }
 
@@ -101,7 +97,6 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         List<Long> parentPath = findParentPath(catelogId, paths);
 
         Collections.reverse(parentPath);
-
 
         return parentPath.toArray(new Long[parentPath.size()]);
     }

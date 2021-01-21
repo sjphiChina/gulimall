@@ -26,6 +26,7 @@ import javax.validation.constraints.*;
 public class BrandEntity implements Serializable {
 	private static final long serialVersionUID = 1L;
 
+	// know 定义校验
 	/**
 	 * 品牌id
 	 */

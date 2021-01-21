@@ -1,5 +1,6 @@
 package com.atguigu.gulimall.auth.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
@@ -12,8 +13,8 @@ import org.springframework.session.web.http.DefaultCookieSerializer;
 public class MyRedisSessionConfig {
 
     @Bean
-    public LettuceConnectionFactory connectionFactory() {
-        return new LettuceConnectionFactory("192.168.99.10", 6379);
+    public LettuceConnectionFactory connectionFactory(@Value("${spring.redis.host}") String host) {
+        return new LettuceConnectionFactory(host, 6379);
     }
 
     @Bean
